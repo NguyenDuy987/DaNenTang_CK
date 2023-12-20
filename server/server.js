@@ -104,6 +104,170 @@ app.get('/carts/:userId', async (req, res) => {
 });
 
 
+// Get cart by user ID
+app.get('/carts/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            return res.status(404).json({ error: 'Cart not found' });
+        }
+
+        res.json(cart);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Add product to cart
+app.post('/carts/:userId/add', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const { productId, quantity, productTitle, productImage, price } = req.body;
+
+        // Find the user's cart or create a new one
+        let cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            cart = new Cart({ userId, date: new Date(), products: [] });
+        }
+
+        // Check if the product is already in the cart
+        const existingProductIndex = cart.products.findIndex((product) => product.productId === productId);
+
+        if (existingProductIndex !== -1) {
+            // If the product is already in the cart, update the quantity
+            cart.products[existingProductIndex].quantity += quantity;
+        } else {
+            // If the product is not in the cart, add it
+            // You need to fetch product details from your database based on the productId
+            //const productDetails = await fetchProductDetails(productId);
+
+            // Add the new product to the cart
+            cart.products.push({
+                productId,
+                productTitle,
+                productImage,
+                quantity,
+                price,
+            });
+        }
+
+        // Save the updated cart
+        await cart.save();
+
+        res.json(cart);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Helper function to fetch product details based on productId
+const fetchProductDetails = async (productId) => {
+    // Implement your logic to fetch product details from the database
+    // This is just a placeholder, replace it with your actual implementation
+    return {
+        productId,
+        productTitle: 'Your Product Title',
+        productImage: 'Your Product Image URL',
+        price: 10.99, // Replace with the actual price
+    };
+};
+
+
+app.put('/carts/:userId/increase', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const { productId } = req.body;
+
+        // Find the user's cart
+        const cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            return res.status(404).json({ error: 'Cart not found' });
+        }
+
+        // Check if the product is in the cart
+        const existingProduct = cart.products.find((product) => product.productId === productId);
+
+        if (!existingProduct) {
+            return res.status(404).json({ error: 'Product not found in the cart' });
+        }
+
+        // Increase the quantity of the product
+        existingProduct.quantity += 1;
+
+        // Save the updated cart
+        await cart.save();
+
+        res.json(cart);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Decrease product quantity in cart
+app.put('/carts/:userId/decrease', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const { productId } = req.body;
+
+        // Find the user's cart
+        const cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            return res.status(404).json({ error: 'Cart not found' });
+        }
+
+        // Check if the product is in the cart
+        const existingProduct = cart.products.find((product) => product.productId === productId);
+
+        if (!existingProduct) {
+            return res.status(404).json({ error: 'Product not found in the cart' });
+        }
+
+        // Decrease the quantity of the product
+        existingProduct.quantity = Math.max(existingProduct.quantity - 1, 0);
+
+        // Save the updated cart
+        await cart.save();
+
+        res.json(cart);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.delete('/carts/:userId/:productId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const productId = req.params.productId;
+
+        // Find the user's cart
+        const cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            return res.status(404).json({ error: 'Cart not found' });
+        }
+
+        // Remove the product from the cart
+        cart.products = cart.products.filter((product) => product.productId !== productId);
+
+        // Save the updated cart
+        await cart.save();
+
+        res.json(cart);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 mongoose.connect('mongodb+srv://20520469:duynguyen@cluster0.eigzfab.mongodb.net/DaNenTang', { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.listen(port, () => {

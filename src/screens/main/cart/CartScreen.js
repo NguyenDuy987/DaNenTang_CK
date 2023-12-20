@@ -10,14 +10,15 @@ import { useNavigation } from '@react-navigation/native';
 
 const CartScreen = () => {
     const navigation = useNavigation();
-    const { state, dispatch } = useCart();
+    const { state, dispatch, fetchCartFromAPI } = useCart();
     const { catt, total } = state;
     const [totalPrice, setTotalPrice] = useState(0);
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [productDetails, setProductDetails] = useState({});
-    const { token } = useAuth();
-    const user_id = jwtDecode(token).sub;
+    const { token, user } = useAuth();
+
+    const user_id = token ? jwtDecode(token).userId : null;
     if (state.cartItems.length === 0) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -33,16 +34,17 @@ const CartScreen = () => {
         setTotalPrice(total.toFixed(2));
     };
 
-    const removeFromCart = async () => {
+    const removeFromCart = async (item) => {
         try {
+            const userId = token ? jwtDecode(token).userId : null;
+            productId = item.productId;
             // Send a request to update the API using Axios
-            await axios.put(`https://fakestoreapi.com/carts/${user_id}`, {
-                userId: user_id,
-                products: state.cartItems.filter((cartItem) => cartItem.productId !== item.productId),
-            });
+            await axios.delete(`http://10.0.2.2:3000/carts/${userId}/${productId}`)
+
 
             // Dispatch the action to remove item from the cart
-            dispatch({ type: 'REMOVE_FROM_CART', payload: item });
+            //dispatch({ type: 'REMOVE_FROM_CART', payload: item });
+            fetchCartFromAPI();
             setModalVisible(false);
         } catch (error) {
             console.error('Error removing item from cart:', error);
@@ -51,17 +53,16 @@ const CartScreen = () => {
 
     const increaseQuantity = async (item) => {
         try {
-            // Send a request to update the API using Axios
-            await axios.put(`https://fakestoreapi.com/carts/${user_id}`, {
-                userId: user_id,
-                products: state.cartItems.map((cartItem) =>
-                    cartItem.productId === item.productId
-                        ? { ...cartItem, quantity: cartItem.quantity + 1 }
-                        : cartItem
-                ),
-            });
+            const userId = jwtDecode(token).userId;
 
-            // Dispatch the action to update item quantity in the cart
+            // Gọi API để tăng số lượng sản phẩm
+            console.log("productID " + item.productId)
+            const response = await axios.put(`http://10.0.2.2:3000/carts/${userId}/increase`, {
+                productId: item.productId,
+            });
+            fetchCartFromAPI();
+
+            // Dispatch action để cập nhật state của ứng dụng
             dispatch({
                 type: 'UPDATE_QUANTITY',
                 payload: { id: item.productId, quantity: item.quantity + 1 },
@@ -69,25 +70,24 @@ const CartScreen = () => {
         } catch (error) {
             console.error('Error updating item quantity:', error);
         }
-    };
+    }
 
     const decreaseQuantity = async (item) => {
         try {
             if (item.quantity > 1) {
-                // Send a request to update the API using Axios
-                await axios.put(`https://fakestoreapi.com/carts/${user_id}`, {
-                    userId: user_id,
-                    products: state.cartItems.map((cartItem) =>
-                        cartItem.productId === item.productId
-                            ? { ...cartItem, quantity: cartItem.quantity - 1 }
-                            : cartItem
-                    ),
+                const userId = jwtDecode(token).userId;
+
+                // Gọi API để tăng số lượng sản phẩm
+                console.log("productID " + item.productId)
+                const response = await axios.put(`http://10.0.2.2:3000/carts/${userId}/decrease`, {
+                    productId: item.productId,
                 });
-                //20520469_NguyenDucDuy
-                // Dispatch the action to update item quantity in the cart
+                fetchCartFromAPI();
+
+                // Dispatch action để cập nhật state của ứng dụng
                 dispatch({
                     type: 'UPDATE_QUANTITY',
-                    payload: { id: item.productId, quantity: item.quantity - 1 },
+                    payload: { id: item.productId, quantity: item.quantity + 1 },
                 });
             } else {
                 // Show confirmation modal for removing item
@@ -99,21 +99,35 @@ const CartScreen = () => {
         }
     };
 
+    const getPrice = (saleInfo) => {
+        if (saleInfo && saleInfo.listPrice && saleInfo.listPrice.amount) {
+            return `$${saleInfo.listPrice.amount.toFixed(2)}`;
+        } else if (saleInfo && saleInfo.retailPrice && saleInfo.retailPrice.amount) {
+            return `$${saleInfo.retailPrice.amount.toFixed(2)}`;
+        } else {
+            return '100';
+        }
+    };
+
     useEffect(() => {
-        calculateTotalPrice(state.cartItems);
-    }, [state.cartItems, productDetails]);
+        if (token) {
+            //fetchCartFromAPI();
+            calculateTotalPrice(state.cartItems[0].products);
+        }
+
+    }, [state.cartItems, productDetails, token]);
 
     return (
         <View style={styles.container}>
             <FlatList
-                data={state.cartItems}
-                keyExtractor={(item) => item.id}
+                data={state.cartItems.length > 0 ? state.cartItems[0].products : []}
+                keyExtractor={(item) => item.productId}
                 renderItem={({ item }) => (
                     <View style={styles.itemContainer}>
-                        <Image source={{ uri: item.image }} style={styles.image} />
+                        <Image source={{ uri: item.productImage }} style={styles.image} />
                         <View style={styles.detailsContainer}>
-                            <Text style={styles.title}>{item.title}</Text>
-                            <Text style={styles.price}>${item.price}</Text>
+                            <Text style={styles.title}>{item.productTitle}</Text>
+                            <Text style={styles.price}>{item.price}</Text>
                         </View>
                         <View style={styles.quantityContainer}>
                             <Button title="-" onPress={() => decreaseQuantity(item)} />
@@ -131,7 +145,7 @@ const CartScreen = () => {
             <Modal visible={isModalVisible} animationType="slide">
                 <View style={styles.modalContainer}>
                     <Text style={styles.modalText}>Are you sure you want to remove this item?</Text>
-                    <TouchableOpacity style={styles.modalButton} onPress={removeFromCart}>
+                    <TouchableOpacity style={styles.modalButton} onPress={() => removeFromCart(selectedItem)}>
                         <Text style={styles.modalButtonText}>Yes</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>

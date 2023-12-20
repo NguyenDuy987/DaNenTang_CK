@@ -27,7 +27,7 @@ const cartReducer = (state, action) => {
             // Thêm sản phẩm vào giỏ hàng
             const newItem = action.payload;
             newItem.quantity = 1;
-            const updatedCart = [...state.cartItems, newItem];
+            const updatedCart = [...state.cartItems.cartItems[0].products.quantity, newItem];
             return {
                 ...state,
                 cartItems: updatedCart,
@@ -76,19 +76,10 @@ export const CartProvider = ({ children }) => {
             console.log("userId " + userId);
             const response = await fetch(`http://10.0.2.2:3000/carts/${userId}`);
             const data = await response.json();
-            console.log("xong tìm kiếm user");
-            // Fetch product details for each product in the cart
-            const productDetailsPromises = data.products.map(async (productItem) => {
-                const productResponse = await fetch(`https://fakestoreapi.com/products/${productItem.productId}`);
-                const productData = await productResponse.json();
-                return {
-                    ...productItem,
-                    ...productData,
-                };
-            });
 
             // Wait for all product details requests to complete
-            const productDetails = await Promise.all(productDetailsPromises);
+            const productDetails = data;
+            //console.log(productDetails);
 
             dispatch({ type: 'INITIALIZE_CART', payload: productDetails });
         } catch (error) {
@@ -104,7 +95,7 @@ export const CartProvider = ({ children }) => {
     }, [token]);
 
 
-    return <CartContext.Provider value={{ state, dispatch }}>{children}</CartContext.Provider>;
+    return <CartContext.Provider value={{ state, dispatch, fetchCartFromAPI }}>{children}</CartContext.Provider>;
 };
 
 // Hook để lấy giá trị từ Context
