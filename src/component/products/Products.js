@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
@@ -12,6 +12,16 @@ export const Products = ({ item, navigation }) => {
     const { price, setPrice } = useState();
     const { token } = useAuth();
     const [cartCount, setCartCount] = useState(0);
+    const [reload, setReload] = useState(false);
+
+    useEffect(() => {
+        if (reload) {
+            fetchCartFromAPI();
+            console.log("Đã reload");
+            setReload(false);
+        }
+
+    }, [reload]);
     const handleProductDetail = () => {
         navigation.navigate('ProductDetail', { title: item.volumeInfo.title, image: item.volumeInfo.imageLinks.thumbnail, price: item.saleInfo && item.saleInfo.listPrice ? item.saleInfo.listPrice.amount : 'N/A', description: item.volumeInfo.description, rate: item.volumeInfo.averageRating ? item.volumeInfo.averageRating.toFixed(1) : 'N/A', count: item.volumeInfo.ratingsCount ? item.volumeInfo.ratingsCount : 'N/A' });
     }
@@ -42,7 +52,7 @@ export const Products = ({ item, navigation }) => {
             });
 
             //dispatch({ type: 'ADD_TO_CART', payload: item });
-            fetchCartFromAPI();
+            setReload(true);
             console.log('Thêm sản phẩm ' + item.id);
         } catch (error) {
             console.error('Error adding product to cart:', error);

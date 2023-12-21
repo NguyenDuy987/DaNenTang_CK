@@ -268,6 +268,21 @@ app.delete('/carts/:userId/:productId', async (req, res) => {
     }
 });
 
+app.delete('/carts/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Xóa giỏ hàng dựa trên userId
+        await Cart.deleteOne({ userId });
+
+        res.json({ success: true, message: 'Cart deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 mongoose.connect('mongodb+srv://20520469:duynguyen@cluster0.eigzfab.mongodb.net/DaNenTang', { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.listen(port, () => {

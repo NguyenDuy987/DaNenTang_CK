@@ -1,6 +1,6 @@
 //20520469_NguyenDucDuy
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, Modal, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, Button, FlatList, Modal, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
 import "core-js/stable/atob";
@@ -17,8 +17,24 @@ const CartScreen = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [productDetails, setProductDetails] = useState({});
     const { token, user } = useAuth();
+    const [reload, setReload] = useState(false);
 
     const user_id = token ? jwtDecode(token).userId : null;
+
+    useEffect(() => {
+        if (reload) {
+            fetchCartFromAPI();
+            console.log("Đã reload");
+            setReload(false);
+
+        }
+        if (state.cartItems.length > 0) {
+
+            calculateTotalPrice(state.cartItems[0].products);
+        }
+
+
+    }, [state.cartItems, productDetails, token, reload]);
     if (state.cartItems.length === 0) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -34,6 +50,21 @@ const CartScreen = () => {
         setTotalPrice(total.toFixed(2));
     };
 
+    const handleDeleteCart = async () => {
+        try {
+            const userId = token ? jwtDecode(token).userId : null;
+            const result = await axios.delete(`http://10.0.2.2:3000/carts/${userId}`);
+            //console.log(result);
+            setReload(true);
+            //fetchCartFromAPI();
+            // Xử lý kết quả nếu cần thiết
+            Alert.alert('Your order is underway');
+        } catch (error) {
+            console.error('Error deleting cart:', error);
+            Alert.alert('Error deleting cart. Please try again.');
+        }
+    };
+
     const removeFromCart = async (item) => {
         try {
             const userId = token ? jwtDecode(token).userId : null;
@@ -41,10 +72,10 @@ const CartScreen = () => {
             // Send a request to update the API using Axios
             await axios.delete(`http://10.0.2.2:3000/carts/${userId}/${productId}`)
 
-
+            setReload(true);
             // Dispatch the action to remove item from the cart
             //dispatch({ type: 'REMOVE_FROM_CART', payload: item });
-            fetchCartFromAPI();
+            //fetchCartFromAPI();
             setModalVisible(false);
         } catch (error) {
             console.error('Error removing item from cart:', error);
@@ -60,13 +91,15 @@ const CartScreen = () => {
             const response = await axios.put(`http://10.0.2.2:3000/carts/${userId}/increase`, {
                 productId: item.productId,
             });
-            fetchCartFromAPI();
-
+            //fetchCartFromAPI();
+            setReload(true);
             // Dispatch action để cập nhật state của ứng dụng
+            /*
             dispatch({
                 type: 'UPDATE_QUANTITY',
                 payload: { id: item.productId, quantity: item.quantity + 1 },
             });
+            */
         } catch (error) {
             console.error('Error updating item quantity:', error);
         }
@@ -82,13 +115,15 @@ const CartScreen = () => {
                 const response = await axios.put(`http://10.0.2.2:3000/carts/${userId}/decrease`, {
                     productId: item.productId,
                 });
-                fetchCartFromAPI();
-
+                //fetchCartFromAPI();
+                setReload(true);
                 // Dispatch action để cập nhật state của ứng dụng
+                /*
                 dispatch({
                     type: 'UPDATE_QUANTITY',
                     payload: { id: item.productId, quantity: item.quantity + 1 },
                 });
+                */
             } else {
                 // Show confirmation modal for removing item
                 setSelectedItem(item);
@@ -109,13 +144,7 @@ const CartScreen = () => {
         }
     };
 
-    useEffect(() => {
-        if (token) {
-            //fetchCartFromAPI();
-            calculateTotalPrice(state.cartItems[0].products);
-        }
 
-    }, [state.cartItems, productDetails, token]);
 
     return (
         <View style={styles.container}>
@@ -139,7 +168,7 @@ const CartScreen = () => {
                 )}
             />
             <Text style={styles.totalPrice}>Total Price: ${totalPrice}</Text>
-            <Button title="Checkout" onPress={() => console.log('Implement checkout logic')} />
+            <Button title="Checkout" onPress={() => handleDeleteCart()} />
 
             {/* Modal for confirmation */}
             <Modal visible={isModalVisible} animationType="slide">

@@ -51,6 +51,13 @@ const cartReducer = (state, action) => {
                 cartItems: updatedCartUpdate,
                 total: calculateTotal(updatedCartUpdate),
             };
+        case 'DELETE_CART':
+            // Xóa toàn bộ giỏ hàng
+            return {
+                ...state,
+                cartItems: [],
+                total: 0,
+            };
         default:
             return state;
     }
@@ -66,7 +73,11 @@ export const CartProvider = ({ children }) => {
     const [state, dispatch] = useReducer(cartReducer, initialState);
     const { token } = useAuth();
     const { user } = useAuth();
-
+    useEffect(() => {
+        if (token) {
+            fetchCartFromAPI();
+        }
+    }, [token]);
     // Hàm fetch giỏ hàng từ API (thay thế với API endpoint của bạn)
     const fetchCartFromAPI = async () => {
         try {
@@ -77,22 +88,22 @@ export const CartProvider = ({ children }) => {
             const response = await fetch(`http://10.0.2.2:3000/carts/${userId}`);
             const data = await response.json();
 
-            // Wait for all product details requests to complete
-            const productDetails = data;
-            //console.log(productDetails);
+            if (true) {
+                // Wait for all product details requests to complete
+                const productDetails = data;
+                console.log(productDetails);
 
-            dispatch({ type: 'INITIALIZE_CART', payload: productDetails });
+                dispatch({ type: 'INITIALIZE_CART', payload: productDetails });
+            } else {
+                console.log('No cart data found.');
+            }
         } catch (error) {
             console.error('Error fetching cart data from API:', error);
         }
     };
 
     // Gọi hàm fetchCartFromAPI khi CartProvider được khởi tạo
-    useEffect(() => {
-        if (token) {
-            fetchCartFromAPI();
-        }
-    }, [token]);
+
 
 
     return <CartContext.Provider value={{ state, dispatch, fetchCartFromAPI }}>{children}</CartContext.Provider>;
