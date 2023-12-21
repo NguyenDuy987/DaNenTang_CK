@@ -5,6 +5,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken'); // Import thư viện jsonwebtoken
 const User = require('./models/User');
 const Cart = require('./models/Cart');
+//const userController = require('../server/userController');
 
 const app = express();
 const port = 3000;
@@ -12,6 +13,39 @@ const secretKey = 'your-secret-key'; // Thay đổi secret key này
 
 app.use(cors());
 app.use(bodyParser.json());
+// API endpoint để lấy thông tin người dùng
+//app.get('/users/:userId', userController.getUserInfo);
+
+// API endpoint để cập nhật thông tin người dùng
+app.put('/users/:userId', async (req, res) => {
+    try {
+        // Lấy userId từ đường dẫn
+        const userId = req.params.userId;
+
+        // Tìm người dùng trong cơ sở dữ liệu dựa trên userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.json({ success: false, message: 'Người dùng không tồn tại' });
+        }
+
+        // Cập nhật thông tin người dùng từ dữ liệu trong request body
+        const updateFields = req.body;
+
+        Object.keys(updateFields).forEach((field) => {
+            user[field] = updateFields[field];
+        });
+
+        // Lưu thông tin người dùng đã cập nhật vào cơ sở dữ liệu
+        await user.save();
+
+        // Trả về thông tin người dùng sau khi cập nhật
+        res.json({ success: true, user });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ success: false, message: 'Đã có lỗi xảy ra' });
+    }
+});
 
 app.get('/users/:userId', async (req, res) => {
     try {

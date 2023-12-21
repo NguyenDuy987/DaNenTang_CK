@@ -9,7 +9,7 @@ import axios from 'axios';
 
 export default function ProfileScreen({ navigation }) {
     const { signOut, token } = useAuth();
-    const [user, setUser] = useState([]);
+    const [user, setUser] = useState(null);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -20,26 +20,37 @@ export default function ProfileScreen({ navigation }) {
     //20520469_NguyenDucDuy
     useEffect(() => {
         const user_id = jwtDecode(token).userId;
-        console.log(user_id);
+        //console.log(user_id);
         const getUser = async () => {
             try {
+
+                console.log(user_id);
                 const response = await axios.get(`http://10.0.2.2:3000/users/${user_id}`);
-                const user = response.data;
-                setUser(user);
-                console.log(user);
-                setFirstName(user.firstname);
-                setLastName(user.lastname);
-                setEmail(user.email);
-                setPhoneNumber(user.phoneNumber);
-                setHouseNumber(user.houseNumber);
-                setStreet(user.street);
-                setCity(user.city);
+                const userData = response.data;
+                //console.log(response.data);
+                setUser(userData);
+                //console.log(user);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         }
         getUser();
     }, []);
+
+    useEffect(() => {
+        // Mã lệnh sẽ chạy khi giá trị user thay đổi
+
+        if (user) {
+            console.log(user);
+            setFirstName(user.user.firstname);
+            setLastName(user.user.lastname);
+            setEmail(user.user.email);
+            setPhoneNumber(user.user.phoneNumber);
+            setHouseNumber(user.user.houseNumber);
+            setStreet(user.user.street);
+            setCity(user.user.city);
+        }
+    }, [user]);
 
     const handleLogout = () => {
         signOut();
@@ -50,7 +61,6 @@ export default function ProfileScreen({ navigation }) {
     }
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Profile Screen</Text>
             <View style={styles.container}>
                 <View style={styles.imageHeader}>
                     <Image
