@@ -128,7 +128,12 @@ export default function EditProfileScreen({ navigation }) {
             </View>
             <View style={styles.houseNumber}>
                 <Text style={styles.titleText}>House number</Text>
-                <Text style={styles.infoText}>{houseNumber}</Text>
+                <TextInput
+                    style={styles.infoText}
+                    placeholder="House number"
+                    value={houseNumber}
+                    onChangeText={setHouseNumber}
+                />
             </View>
             <View style={styles.street}>
                 <Text style={styles.titleText}>Street</Text>
