@@ -1,8 +1,9 @@
 // LoginScreen.js
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import logo from '../../../assets/logoBookIcon.png';
 
 const LoginScreen = ({ navigation }) => {
   const { signIn } = useAuth();
@@ -20,7 +21,12 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text>Login Screen</Text>
+      <View style={styles.imageContainer}>
+        <Image source={logo} style={styles.logoImage} />
+        <Text style={styles.title}>
+          Welcome to GreenInk Library!
+        </Text>
+      </View>
       <TextInput
         style={styles.input}
         placeholder="Username"
@@ -35,8 +41,21 @@ const LoginScreen = ({ navigation }) => {
         value={password}
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      <Button title="Login" onPress={handleLogin} />
-      <Button title="Go to Register" onPress={() => navigation.navigate('Register')} />
+      <View style={styles.buttonContainer}>
+        <Button 
+          style={styles.inputButton} 
+          title="Login" 
+          color="green"
+          onPress={handleLogin} 
+        />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button 
+          style={styles.inputButton} 
+          title="Go to Register"
+          color="green"
+          onPress={() => navigation.navigate('Register')} />
+      </View>
     </View>
   );
 };
@@ -46,6 +65,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  imageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  logoImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    borderRadius: 30,
   },
   input: {
     height: 40,
@@ -59,6 +93,14 @@ const styles = StyleSheet.create({
     color: 'red',
     marginBottom: 10,
   },
+  inputButton: {
+    borderRadius: 30,
+  },
+  buttonContainer:{
+    width: '40%',
+    borderRadius: 10,
+    marginVertical: 10,
+  }
 });
 
 export default LoginScreen;

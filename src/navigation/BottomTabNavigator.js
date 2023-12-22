@@ -7,6 +7,7 @@ import HomeStackNavigator from './HomeStackNavigator';
 import CategoriesScreen from '../screens/main/categories/CategoriesScreen';
 import ProfileStackNavigator from './ProfileStackNavigator';
 import CartScreen from '../screens/main/cart/CartScreen';
+import CategoriesNavigator from './CategoriesNavigator';
 
 //Screen names
 const homeTab = "Home Tab";
@@ -48,7 +49,7 @@ function BottomTabNavigator() {
           headerShown: false,
           tabBarLabel: 'Home'
         }} />
-      <Tab.Screen name={categoriesTab} component={CategoriesScreen} />
+      <Tab.Screen name={categoriesTab} component={CategoriesNavigator} options={{headerShown: false}}/>
       <Tab.Screen name={cartTab} component={CartScreen} />
       <Tab.Screen name={profileTab} component={ProfileStackNavigator} options={{headerShown: false}}/>
     </Tab.Navigator>

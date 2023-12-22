@@ -5,6 +5,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken'); // Import thư viện jsonwebtoken
 const User = require('./models/User');
 const Cart = require('./models/Cart');
+const Comment = require('./models/Comment');
 
 const app = express();
 const port = 3000;
@@ -282,6 +283,68 @@ app.delete('/carts/:userId', async (req, res) => {
     }
 });
 
+app.post('/comments/New', async (req, res) => {
+    const { userId, date, comment, rating, bookTitle } = req.body;
+    try {
+        const newComment = new Comment({
+            userId,
+            date,
+            comment,
+            rating,
+            bookTitle,
+        });
+        newComment.save();
+        res.json(newComment);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/comments/:userId', async (req, res) => {
+    try {
+        const comments = await Comment.find({ userId: req.params.userId })
+            .populate('userId');
+        res.json(comments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/comments/:bookTitle', async (req, res) => {
+    try {
+        const comments = await Comment.find({ bookTitle: req.params.bookTitle })
+            .populate('userId');
+        res.json(comments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.put('/comments/:id', async (req, res) => {
+    try {
+        const comment = await Comment.findById(req.params.id);
+        comment.comment = req.body.comment;
+        comment.save();
+        res.json(comment);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.delete('/comments/:id', async (req, res) => {
+    try {
+        const comment = await Comment.findById(req.params.id);
+        comment.delete();
+        res.json(comment);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 mongoose.connect('mongodb+srv://20520469:duynguyen@cluster0.eigzfab.mongodb.net/DaNenTang', { useNewUrlParser: true, useUnifiedTopology: true });
 

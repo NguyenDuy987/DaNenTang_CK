@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { Input, Button, Text } from 'react-native-elements';
 import { useAuth } from '../../context/AuthContext';
+import logo from '../../../assets/logoBookIcon.png';
 
 const RegisterScreen = ({ navigation }) => {
   const { registerUser } = useAuth();
@@ -44,9 +45,12 @@ const RegisterScreen = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text h3 style={styles.title}>
-        Đăng ký tài khoản
-      </Text>
+      <View style={styles.imageContainer}>
+        <Image source={logo} style={styles.logoImage} />
+        <Text h3 style={styles.title}>
+          Register
+        </Text>
+      </View>
       <Input
         placeholder="Tên người dùng"
         value={username}
@@ -105,7 +109,9 @@ const RegisterScreen = ({ navigation }) => {
         value={city}
         onChangeText={(text) => setCity(text)}
       />
-      <Button title="Đăng ký" onPress={handleRegister} />
+      <Button
+        title="Register"
+        onPress={handleRegister} />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </ScrollView>
   );
@@ -123,6 +129,22 @@ const styles = StyleSheet.create({
     color: 'red',
     marginTop: 10,
     textAlign: 'center',
+  },
+  buttonStyle: {
+    width: '40%',
+    borderRadius: 30,
+    marginVertical: 10,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  logoImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    borderRadius: 30,
   },
 });
 

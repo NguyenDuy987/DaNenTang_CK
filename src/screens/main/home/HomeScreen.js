@@ -20,18 +20,21 @@ const HomeScreen = ({ navigation }) => {
     { id: 2, image: ad2 },
     { id: 3, image: ad3 },
   ];
+  const combinedData = [
+    { id: 1, title: 'HOT DEALS', data: hotDealsData },
+    { id: 2, title: 'NEW ARRIVALS', data: newArrivalsData },
+  ];
+
+  const renderItems = ({ item }) => {
+    return (
+      <View style={styles.typeProduct}>
+        <Text style={styles.sectionTitle}>{item.title}</Text>
+        <ProductList productListType={item.data} navigation={navigation} />
+      </View>
+    );
+  };
   //20520469_NguyenDucDuy
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('https://fakestoreapi.com/products');
-      const data = response.data;
-      console.log(data);
-      setProducts(data);
-    } catch (error) {
-      Alert.alert('Error', error.message);
-    }
-  };
   return (
     <View style={styles.container}>
       <Text style={styles.slogan}>Cửa hàng</Text>
@@ -52,12 +55,11 @@ const HomeScreen = ({ navigation }) => {
         )
         }
       />
-      <Text style={styles.sectionTitle}>Hot Deals</Text>
-      <ProductList productListType={hotDealsData} navigation={navigation} />
-
-      <Text style={styles.sectionTitle}>New Arrivals</Text>
-      <ProductList productListType={newArrivalsData} navigation={navigation} />
-
+      <FlatList
+        data={combinedData}
+        renderItem={renderItems}
+        keyExtractor={(item) => item.id.toString()}
+      />
     </View>
   );
 };
