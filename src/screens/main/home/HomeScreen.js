@@ -37,14 +37,14 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.slogan}>Cửa hàng</Text>
+      <Text style={styles.slogan}>GreenInk Library</Text>
       <Carousel
         loop
         width={400}
         height={200}
         autoPlay={true}
         data={carouselData}
-        scrollAnimationDuration={1000}
+        scrollAnimationDuration={2000}
         renderItem={({ index }) => (
           <View style={styles.imageContainer}>
             <Image

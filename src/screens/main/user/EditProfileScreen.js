@@ -23,11 +23,11 @@ export default function EditProfileScreen({ navigation }) {
     useEffect(() => {
         const getUser = async () => {
             try {
-                const user_id = jwtDecode(token).sub;
-                const response = await axios.get(`https://fakestoreapi.com/users/${user_id}`);
+                const user_id = jwtDecode(token).userId;
+                const response = await axios.get(`http://10.0.2.2:3000/users/${user_id}`);
                 const user = response.data;
-                console.log(user);
-                setUser(user);
+                //console.log(user);
+                setUser(user.user);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -37,41 +37,31 @@ export default function EditProfileScreen({ navigation }) {
 
     useEffect(() => {
         if (user) {
-            setFirstName(user.name.firstname);
-            setLastName(user.name.lastname);
+            setFirstName(user.firstName);
+            setLastName(user.lastName);
             setEmail(user.email);
-            setPhoneNumber(user.phone);
-            setHouseNumber(user.address.number);
-            setStreet(user.address.street);
-            setCity(user.address.city);
+            setPhoneNumber(user.phoneNumber);
+            setHouseNumber(user.houseNumber);
+            setStreet(user.street);
+            setCity(user.city);
         }
     }
         , [user]);
 
     const updateUserInfo = async () => {
         try {
-            const user_id = jwt_decode(token).sub;
-            const response = await axios.put(`https://fakestoreapi.com/users/${user_id}`, {
+            const user_id = jwtDecode(token).userId;
+            console.log(user_id);
+            const response = await axios.put(`http://10.0.2.2:3000/users/${user_id}`, {
                 email: email,
-                username: user.username,
-                password: user.password,
-                name: {
-                    firstname: firstName,
-                    lastname: lastName
-                },
-                address: {
-                    city: city,
-                    street: street,
-                    number: houseNumber,
-                    zipcode: user.address.zipcode,
-                    geolocation: {
-                        lat: user.address.geolocation.lat,
-                        long: user.address.geolocation.long
-                    }
-                },
+                firstname: firstName,
+                lastname: lastName,
+                city: city,
+                street: street,
+                number: houseNumber,
                 phone: phoneNumber,
             });
-            const user = response.data;
+            const user = response.data.user;
             setUser(user);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -138,7 +128,12 @@ export default function EditProfileScreen({ navigation }) {
             </View>
             <View style={styles.houseNumber}>
                 <Text style={styles.titleText}>House number</Text>
-                <Text style={styles.infoText}>{houseNumber}</Text>
+                <TextInput
+                    style={styles.infoText}
+                    placeholder="House number"
+                    value={houseNumber}
+                    onChangeText={setHouseNumber}
+                />
             </View>
             <View style={styles.street}>
                 <Text style={styles.titleText}>Street</Text>
