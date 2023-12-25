@@ -56,6 +56,10 @@ export default function ProfileScreen({ navigation }) {
         signOut();
     };
 
+
+    const handleViewOrders = () => {
+        navigation.navigate('OrderList'); // Thay 'ListOrder' bằng tên Stack/Screen bạn đã đặt cho màn hình xem đơn hàng
+    };
     const handleEdit = () => {
         navigation.navigate('EditProfile');
     }
@@ -77,6 +81,7 @@ export default function ProfileScreen({ navigation }) {
                     <Text style={styles.infoText}>Phone number: {phoneNumber}</Text>
                     <Text style={styles.infoText}>Address: {houseNumber} {street}, {city}</Text>
                 </View>
+                <Button title="View Orders" onPress={handleViewOrders} />
                 <Button title="Log out" onPress={handleLogout} />
             </View>
         </View>

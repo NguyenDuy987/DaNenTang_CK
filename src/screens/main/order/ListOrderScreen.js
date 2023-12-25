@@ -1,9 +1,13 @@
 // ListOrderScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import { useAuth } from '../../../context/AuthContext';
+import { jwtDecode } from 'jwt-decode';
+import { useNavigation } from '@react-navigation/native';
 
 const ListOrderScreen = () => {
+    const navigation = useNavigation();
     const [orders, setOrders] = useState([]);
     const { token } = useAuth();
     const user_id = token ? jwtDecode(token).userId : null;
@@ -22,19 +26,27 @@ const ListOrderScreen = () => {
         fetchOrders();
     }, []);
 
+    const handleOrderPress = (order) => {
+        navigation.navigate('OrderDetail', { order });
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>List of Orders</Text>
+
             <FlatList
                 data={orders}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
-                    <View style={styles.orderItem}>
+                    <TouchableOpacity
+                        style={styles.orderItem}
+                        onPress={() => handleOrderPress(item)}
+                    >
                         <Text>Order ID: {item._id}</Text>
-                        <Text>Total Price: ${item.totalPrice.toFixed(2)}</Text>
+                        <Text>Total Price: ${item.TotalPrice.toFixed(2)}</Text>
                         <Text>Status: {item.status}</Text>
                         {/* Thêm các trường khác bạn muốn hiển thị */}
-                    </View>
+                    </TouchableOpacity>
                 )}
             />
         </View>

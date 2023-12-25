@@ -107,7 +107,7 @@ const OrderScreen = () => {
                         city: customCity,
                     },
                 products: state.cartItems[0].products,
-                total: totalPrice,
+                TotalPrice: totalPrice,
             };
 
             // Gọi API để lưu đơn hàng vào cơ sở dữ liệu

@@ -35,14 +35,14 @@ app.get('/orders/user/:userId', async (req, res) => {
 });
 app.post('/orders', async (req, res) => {
     try {
-        const { userId, totalPrice, deliveryAddress, products } = req.body;
+        const { userId, TotalPrice, deliveryAddress, products } = req.body;
 
         const order = new Order({
             userId,
             date: new Date(),
             deliveryAddress,
             products,
-            totalPrice,
+            TotalPrice,
             status: 'In Transit', // Trạng thái mặc định là 'In Transit'
         });
 
