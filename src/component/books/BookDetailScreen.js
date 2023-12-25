@@ -208,8 +208,16 @@ const BookDetailScreen = ({ route, navigation }) => {
 	                                <Text style={styles.ratingText}>({count})</Text>
 	                            </View>
 	                        </View>
-	                        </View>                            
+	                        </View>
+                            <View style={styles.buyContainer}>
+	                            <TouchableOpacity onPress={handleAddToCart}>
+	                                <View style={styles.buyButton}>
+	                                    <Text style={styles.buyText}>Buy</Text>
+	                                </View>
+	                            </TouchableOpacity>
+	                        </View>
                         </View>
+                        
                     );
                 case 'feedBack':
                     return (
