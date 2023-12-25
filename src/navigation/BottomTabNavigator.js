@@ -8,12 +8,14 @@ import CategoriesScreen from '../screens/main/categories/CategoriesScreen';
 import ProfileStackNavigator from './ProfileStackNavigator';
 import CartScreen from '../screens/main/cart/CartScreen';
 import CategoriesNavigator from './CategoriesNavigator';
+import CartToOrderStackNavigator from './cartToOrderNav';
 
 //Screen names
 const homeTab = "Home Tab";
 const categoriesTab = "Categories";
 const profileTab = "Profile";
 const cartTab = "Cart";
+const orderTab = "Order"
 
 const Tab = createBottomTabNavigator();
 
@@ -23,8 +25,8 @@ function BottomTabNavigator() {
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: "tomato",
         tabBarInactiveTintColor: "grey",
-        tabBarLabelStyle: {paddingBottom: "10", fontStyle: "normal"},
-        tabBarStyle: {display: "flex"},
+        tabBarLabelStyle: { paddingBottom: "10", fontStyle: "normal" },
+        tabBarStyle: { display: "flex" },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           let rn = route.name;
@@ -42,16 +44,17 @@ function BottomTabNavigator() {
         },
       })}
     >
-      <Tab.Screen 
+      <Tab.Screen
         name={homeTab}
         component={HomeStackNavigator}
         options={{
           headerShown: false,
           tabBarLabel: 'Home'
         }} />
-      <Tab.Screen name={categoriesTab} component={CategoriesNavigator} options={{headerShown: false}}/>
-      <Tab.Screen name={cartTab} component={CartScreen} />
-      <Tab.Screen name={profileTab} component={ProfileStackNavigator} options={{headerShown: false}}/>
+      <Tab.Screen name={categoriesTab} component={CategoriesNavigator} options={{ headerShown: false }} />
+      <Tab.Screen name={cartTab} component={CartToOrderStackNavigator} options={{ headerShown: false }} />
+      <Tab.Screen name={profileTab} component={ProfileStackNavigator} options={{ headerShown: false }} />
+
     </Tab.Navigator>
   );
 }

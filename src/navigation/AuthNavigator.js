@@ -8,14 +8,14 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 const Stack = createStackNavigator();
 
 const navOptionHandler = () => ({
-  headerShown: false
+  headerShown: true
 })
 
 const AuthNavigator = () => {
   return (
     <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Login" component={LoginScreen} options={navOptionHandler}/>
-      <Stack.Screen name="Register" component={RegisterScreen} options={navOptionHandler}/>
+      <Stack.Screen name="Login" component={LoginScreen} options={navOptionHandler} />
+      <Stack.Screen name="Register" component={RegisterScreen} options={navOptionHandler} />
     </Stack.Navigator>
   );
 };
