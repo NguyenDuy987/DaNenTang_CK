@@ -44,6 +44,10 @@ const CartScreen = () => {
         );
     }
 
+    const orderNav = () => {
+        navigation.navigate('Order');
+    }
+
     const calculateTotalPrice = (items) => {
         // need round to 2 decimal places
         const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -168,7 +172,7 @@ const CartScreen = () => {
                 )}
             />
             <Text style={styles.totalPrice}>Total Price: ${totalPrice}</Text>
-            <Button title="Checkout" onPress={() => handleDeleteCart()} />
+            <Button title="Checkout" onPress={() => orderNav()} />
 
             {/* Modal for confirmation */}
             <Modal visible={isModalVisible} animationType="slide">
@@ -241,7 +245,7 @@ const styles = StyleSheet.create({
     },
     modalButton: {
         padding: 12,
-        backgroundColor: 'blue',
+        backgroundColor: 'green',
         borderRadius: 8,
         marginVertical: 8,
     },

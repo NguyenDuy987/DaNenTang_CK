@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken'); // Import thư viện jsonwebtoken
 const User = require('./models/User');
 const Cart = require('./models/Cart');
 const Comment = require('./models/Comment');
+const Order = require('./models/Order');
 
 const app = express();
 const port = 3000;
@@ -16,6 +17,42 @@ app.use(bodyParser.json());
 // API endpoint để lấy thông tin người dùng
 //app.get('/users/:userId', userController.getUserInfo);
 
+
+app.get('/orders/user/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const orders = await Order.find({ userId });
+
+        if (orders.length > 0) {
+            res.json(orders);
+        } else {
+            res.status(404).json({ error: 'No orders found for the user' });
+        }
+    } catch (error) {
+        console.error('Error getting orders:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+app.post('/orders', async (req, res) => {
+    try {
+        const { userId, totalPrice, deliveryAddress, products } = req.body;
+
+        const order = new Order({
+            userId,
+            date: new Date(),
+            deliveryAddress,
+            products,
+            totalPrice,
+            status: 'In Transit', // Trạng thái mặc định là 'In Transit'
+        });
+
+        const savedOrder = await order.save();
+        res.json({ success: true, savedOrder });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 // API endpoint để cập nhật thông tin người dùng
 app.put('/users/:userId', async (req, res) => {
     try {
