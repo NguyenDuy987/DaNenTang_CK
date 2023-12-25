@@ -354,13 +354,14 @@ app.delete('/carts/:userId', async (req, res) => {
 });
 
 app.post('/comments/New', async (req, res) => {
-    const { userId, date, comment, rating, bookTitle } = req.body;
+    const { userId, date, comment, rating, image, bookTitle } = req.body;
     try {
         const newComment = new Comment({
             userId,
             date,
             comment,
             rating,
+            image,
             bookTitle,
         });
         newComment.save();
@@ -371,7 +372,7 @@ app.post('/comments/New', async (req, res) => {
     }
 });
 
-app.get('/comments/:userId', async (req, res) => {
+app.get('/comments/user/:userId', async (req, res) => {
     try {
         const comments = await Comment.find({ userId: req.params.userId })
             .populate('userId');
@@ -382,7 +383,7 @@ app.get('/comments/:userId', async (req, res) => {
     }
 });
 
-app.get('/comments/:bookTitle', async (req, res) => {
+app.get('/comments/book/:bookTitle', async (req, res) => {
     try {
         const comments = await Comment.find({ bookTitle: req.params.bookTitle })
             .populate('userId');
@@ -397,6 +398,8 @@ app.put('/comments/:id', async (req, res) => {
     try {
         const comment = await Comment.findById(req.params.id);
         comment.comment = req.body.comment;
+        comment.rating = req.body.rating;
+        comment.image = req.body.image;
         comment.save();
         res.json(comment);
     } catch (error) {
@@ -405,11 +408,11 @@ app.put('/comments/:id', async (req, res) => {
     }
 });
 
-app.delete('/comments/:id', async (req, res) => {
+app.delete('/comments/delete/:id', async (req, res) => {
     try {
-        const comment = await Comment.findById(req.params.id);
-        comment.delete();
-        res.json(comment);
+        const commentId= req.params.id;
+        await Comment.deleteOne({ _id: commentId });
+        res.json({ success: true, message: 'Comment deleted successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });

@@ -1,148 +1,195 @@
-import "core-js/stable/atob";
-import React, { useContext, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import "core-js/stable/atob";
 
-export const BookItem = ({ comment, navigation }) => {
+export const CommentItem = ({ comment, navigation }) => {
     const { token } = useAuth();
-    const [comment, setComment] = useState(comment.comment);
-    const [rating, setRating] = useState(comment.rating);
-    const [date, setDate] = useState(comment.date);
-    const [userComment, setUserComment] = useState(comment.userId);
-    const [bookTitle, setBookTitle] = useState(comment.bookTitle);
-    const [Id, setId] = useState(comment._id);
+    const [username, setUsername] = useState('');
+    const [userHasAccess, setUserHasAccess] = useState(false);
 
-    const handleDeleteComment = async () => {
-        try {
-            const userId = jwtDecode(token).userId;
-            //Check if the user is the owner of the comment
-            if (userId === userComment) {
-                const response = await axios.delete(`http://localhost:3000/comments/${Id}`);
-                if (response.status === 200) {
-                    console.log('Delete comment success');
-                } else {
-                    throw new Error('Invalid credentials');
-                }
-            } else {
-                Alert.alert('You are not the owner of this comment');
-            }
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const nameOfUser = comment.userId.username;
+                setUsername(nameOfUser);
+                console.log('username: ' + nameOfUser);
+                const user_Id = jwtDecode(token).userId;
 
-    const handleEditComment = async () => {
-        try {
-            const userId = jwtDecode(token).userId;
-            //Check if the user is the owner of the comment
-            if (userId === userComment) {
-                navigation.navigate('EditComment', {
-                    Id: Id,
-                    userId: userId,
-                    date: date,
-                    comment: comment,
-                    rating: rating,
-                    bookTitle: bookTitle
-                });
-            } else {
-                Alert.alert('You are not the owner of this comment');
+                setUserHasAccess(comment.userId._id === user_Id);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
+        };
+
+        fetchData();
+    }, [comment.userId.username]);
+
+    const handleDelete = async () => {
+        try {
+            console.log('comment._id: ' + comment._id);
+            const response = await axios.delete(`http://10.0.2.2:3000/comments/delete/${comment._id}`);
+    
+            if (response.status === 200) {
+                Alert.alert('Delete comment successfully!');
+            } else {
+                console.error('Failed to delete comment. Status code:', response.status);
+            }
+        } catch (error) {
+            console.error('Error deleting comment:', error);
         }
-        catch (error) {
-            console.log(error);
-        }
-    }
+    };
+
+    const handleEdit = () => {
+        navigation.navigate('EditComment', {
+            Id: comment._id,
+            userId: comment.userId,
+            date: comment.date,
+            rating: comment.rating,
+            comment: comment.comment,
+            image: comment.image,
+            bookTitle: comment.bookTitle,
+        });
+    };
 
     return (
         <View style={styles.container}>
-            <View style={styles.imageContainer}>
-                <Text style={styles.title}>{comment}</Text>
-            </View>
-            <View style={styles.noteContainer}>
-                <View style={styles.note}>
-                    <Text style={styles.price}>{rating}</Text>
+            <View style={styles.commentContainer}>
+                <View style={styles.commentHeader}>
+                    <View style={styles.commentHeaderLeft}>
+                        <View style={styles.commentHeaderLeftText}>
+                            <Text style={styles.username}>{username}</Text>
+                            <View style={styles.dateContainer}>
+                                <Text style={styles.date}>{comment.date}</Text>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.commentHeaderRight}>
+                        <Text style={styles.rating}>{comment.rating}</Text>
+                        <Ionicons name="star" size={20} color="#FFD700" />
+                    </View>
                 </View>
-                <TouchableOpacity onPress={handleEditComment}>
-                    <View style={styles.addCartContainer}>
-                        <Ionicons name="create" size={24} color="blue" />
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleDeleteComment}>
-                    <View style={styles.addCartContainer}>
-                        <Ionicons name="trash" size={24} color="blue" />
-                    </View>
-                </TouchableOpacity>
+                <View style={styles.commentBody}>
+                    <Text style={styles.commentText}>{comment.comment}</Text>
+                    {comment.image && (
+                            <Image
+                                style={styles.avatar}
+                                source={{
+                                    uri: comment.image,
+                                }}
+                            />
+                        )}
+                </View>
             </View>
+            {userHasAccess && (
+                <View style={styles.buttonsContainer}>
+                    <TouchableOpacity style={styles.button} onPress={handleEdit}>
+                        <Text style={styles.buttonText}>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={handleDelete}>
+                        <Text style={styles.buttonText}>Delete</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 15,
+        backgroundColor: '#fff',
+        marginVertical: 5,
+        marginHorizontal: 10,
+        padding: 10,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 }, 
+        shadowOpacity: 0.25, 
+        shadowRadius: 3.84, 
+        elevation: 5,
+        width: '95%',
+        height: 200,
+    },
+    commentContainer: {
+        flex: 1,
+    },
+    commentHeader: {
+        flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginHorizontal: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: 'gray',
     },
-    imageContainer: {
+    commentHeaderLeft: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
+        width: '70%',
     },
-    image: {
-        width: 50,
-        height: 50,
-        resizeMode: 'contain',
-    },
-    title: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginLeft: 10,
-    },
-    noteContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-    },
-    note: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-    },
-    price: {
-        fontSize: 16,
-        fontWeight: 'bold',
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 10,
         marginRight: 10,
     },
-    ratingContainer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
+    commentHeaderLeftText: {
+        flex: 1,
     },
-    ratingText: {
+    username: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    date: {
+        fontSize: 12,
+        color: '#808080',
+    },
+    commentHeaderRight: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        marginLeft: 10,
+        marginBottom: 15,
+    },
+    rating: {
         fontSize: 16,
         fontWeight: 'bold',
         marginRight: 5,
     },
-    addCartContainer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
+    commentBody: {
+        flex: 1,
+        marginTop: 10,
     },
-    addCartText: {
+    commentText: {
+        fontSize: 16,
+    },
+    buttonsContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
+        marginTop: 10,
+    },
+    button: {
+        backgroundColor: '#FFD700',
+        padding: 5,
+        borderRadius: 5,
+        width: 60,
+        marginHorizontal: 5,
+        marginTop: 10,
+    },
+    buttonText: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginRight: 5,
+        textAlign: 'center',
+    },
+    dateContainer: {
+        marginTop: 10,
     },
 });
+
+

@@ -33,7 +33,6 @@ const HomeScreen = ({ navigation }) => {
       </View>
     );
   };
-  //20520469_NguyenDucDuy
 
   return (
     <View style={styles.container}>

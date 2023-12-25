@@ -26,7 +26,7 @@ export const BookItem = ({ book, navigation }) => {
     }, [reload]);
 
     const handleProductDetail = () => {
-        navigation.navigate('BookDetail', { title: book.volumeInfo.title, image: book.volumeInfo.imageLinks.thumbnail, price: book.saleInfo && book.saleInfo.listPrice ? book.saleInfo.listPrice.amount : 'N/A', description: book.volumeInfo.description, rate: book.volumeInfo.averageRating ? book.volumeInfo.averageRating.toFixed(1) : 'N/A', count: book.volumeInfo.ratingsCount ? book.volumeInfo.ratingsCount : 'N/A' });
+        navigation.navigate('BookDetail', { Id: book.id , title: book.volumeInfo.title, image: book.volumeInfo.imageLinks.thumbnail, price: book.saleInfo && book.saleInfo.listPrice ? book.saleInfo.listPrice.amount : 'N/A', description: book.volumeInfo.description, authors: book.volumeInfo.authors, categories:book.volumeInfo.categories , rate: book.volumeInfo.averageRating ? book.volumeInfo.averageRating.toFixed(1) : 'N/A', count: book.volumeInfo.ratingsCount ? book.volumeInfo.ratingsCount : 'N/A' });
     }
 
     const handleAddToCart = async () => {
@@ -74,12 +74,29 @@ export const BookItem = ({ book, navigation }) => {
         }
     };
 
+    const getAuthors = (authors) => {
+        // if authors array > 1, return the first author name and plus 'et al.'
+        if (authors && authors.length > 1) {
+            return `${authors[0]} ...`;
+        } else if (authors) {
+            return `${authors[0]}`;
+        } else {
+            return 'N/A';
+        }
+    }
+
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={handleProductDetail}>
                 <View style={styles.imageContainer}>
-                    <Image source={{ uri: book.volumeInfo.imageLinks && book.volumeInfo.imageLinks.thumbnail }} style={styles.image} />
-                    <Text style={styles.title}>{book.volumeInfo.title}</Text>
+                    <View style={styles.imageSizeContainer}>
+                        <Image source={{ uri: book.volumeInfo.imageLinks && book.volumeInfo.imageLinks.thumbnail }} style={styles.image} />
+                        <Text style={styles.title}>{book.volumeInfo.title}</Text>
+                    </View>
+                    <View style={styles.infoSizeContainer}>
+                        <Text style={styles.infoTitle}>Authors: {getAuthors(book.volumeInfo.authors)}</Text>
+                        <Text style={styles.infoTitle}>Categories: {book.volumeInfo.categories}</Text>
+                    </View>
                 </View>
             </TouchableOpacity>
             <View style={styles.noteContainer}>
@@ -124,12 +141,29 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'left',
     },
+    infoTitle: {
+        fontSize: 12,
+        textAlign: 'left',
+    },
     imageContainer: {
         flex: 1,
         flexDirection: 'column',
         alignItems: 'left',
         justifyContent: 'center',
+    },
+    imageSizeContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
         height: 200,
+    },
+    infoSizeContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'left',
+        justifyContent: 'center',
+        height: 75,
     },
     noteContainer: {
         flexDirection: 'row',

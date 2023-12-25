@@ -8,7 +8,8 @@ const commentSchema = new mongoose.Schema({
     },
     date: { type: Date, required: true },
     comment: { type: String, required: true },
-    rating: { type: Number, required: true },
+    rating: { type: Number, required: false },
+    image: { type: String, required: false },
     bookTitle: { type: String, required: true },
 });
 
