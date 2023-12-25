@@ -2,23 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { FlatList, View } from 'react-native';
 import axios from 'axios';
 import { Products } from './Products';
+import { BookItem } from '../books/BookItem';
 
 export const ProductList = ({ productListType, navigation }) => {
     const [products, setProducts] = useState([]);
-
-    const hasCompleteData = (book) => {
-        return (
-            book.volumeInfo &&
-            book.volumeInfo.title &&
-            book.volumeInfo.imageLinks &&
-            book.volumeInfo.imageLinks.thumbnail &&
-            book.saleInfo &&
-            book.saleInfo.listPrice &&
-            book.saleInfo.listPrice.amount &&
-            book.volumeInfo.averageRating &&
-            book.volumeInfo.ratingsCount
-        );
-    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -31,7 +18,7 @@ export const ProductList = ({ productListType, navigation }) => {
                         apiUrl = 'https://www.googleapis.com/books/v1/volumes?q=country=US&saleInfo.saleability=FOR_SALE';
                         break;
                     case 'HotDeals':
-                        apiUrl = await 'https://www.googleapis.com/books/v1/volumes?q=java&maxResults=40&country=US';
+                        apiUrl = 'https://www.googleapis.com/books/v1/volumes?q=java&maxResults=40&country=US';
                         whatCase = "Hot";
                         break;
                     case 'NewArrivals':
@@ -44,7 +31,7 @@ export const ProductList = ({ productListType, navigation }) => {
                 }
 
                 const response = await axios.get(apiUrl);
-                const filteredBooks = response.data.items ? response.data.items.filter(hasCompleteData) : [];
+                const filteredBooks = response.data.items;
                 setProducts(filteredBooks || []);
                 //setProducts(response.data.items || []);
                 console.log("số lượng ban đầu của " + whatCase + response.data.items.length);
@@ -61,7 +48,7 @@ export const ProductList = ({ productListType, navigation }) => {
         <View>
             <FlatList
                 data={products}
-                renderItem={({ item }) => <Products item={item} navigation={navigation} />}
+                renderItem={({ item }) => <BookItem book={item} navigation={navigation} />}
                 keyExtractor={item => item.id}
                 numColumns={2}
             />

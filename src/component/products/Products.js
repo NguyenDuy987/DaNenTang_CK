@@ -5,14 +5,14 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { jwtDecode } from 'jwt-decode';
-//20520469_NguyenDucDuy
-export const Products = ({ item, navigation }) => {
+
+export const Products = ({ book, navigation }) => {
     const { state, dispatch } = useCart();
-    const { cart, fetchCartFromAPI } = useCart();
-    const { price, setPrice } = useState();
+    const { cart } = useCart();
     const { token } = useAuth();
     const [cartCount, setCartCount] = useState(0);
     const [reload, setReload] = useState(false);
+    const { fetchCartFromAPI } = useCart();
 
     useEffect(() => {
         if (reload) {
@@ -22,8 +22,9 @@ export const Products = ({ item, navigation }) => {
         }
 
     }, [reload]);
+
     const handleProductDetail = () => {
-        navigation.navigate('ProductDetail', { title: item.volumeInfo.title, image: item.volumeInfo.imageLinks.thumbnail, price: item.saleInfo && item.saleInfo.listPrice ? item.saleInfo.listPrice.amount : 'N/A', description: item.volumeInfo.description, rate: item.volumeInfo.averageRating ? item.volumeInfo.averageRating.toFixed(1) : 'N/A', count: item.volumeInfo.ratingsCount ? item.volumeInfo.ratingsCount : 'N/A' });
+        navigation.navigate('BookDetail', { Id: book.id , title: book.volumeInfo.title, image: book.volumeInfo.imageLinks.thumbnail, price: book.saleInfo && book.saleInfo.listPrice ? book.saleInfo.listPrice.amount : 'N/A', description: book.volumeInfo.description, authors: book.volumeInfo.authors, categories:book.volumeInfo.categories , rate: book.volumeInfo.averageRating ? book.volumeInfo.averageRating.toFixed(1) : 'N/A', count: book.volumeInfo.ratingsCount ? book.volumeInfo.ratingsCount : 'N/A' });
     }
 
     const handleAddToCart = async () => {
@@ -32,7 +33,7 @@ export const Products = ({ item, navigation }) => {
 
 
         if (existingCart) {
-            const existingItem = existingCart.products.find((cartItem) => cartItem.productId === item.id);
+            const existingItem = existingCart.products.find((cartItem) => cartItem.productId === book.id);
 
             if (existingItem) {
                 Alert.alert('The product is already in the cart!');
@@ -44,47 +45,65 @@ export const Products = ({ item, navigation }) => {
             userId = jwtDecode(token).userId;
             console.log(userId);
             const response = await axios.post(`http://10.0.2.2:3000/carts/${userId}/add`, {
-                productId: item.id,
-                productTitle: item.volumeInfo.title,
-                productImage: item.volumeInfo.imageLinks.thumbnail,
-                price: getPrice(item.saleInfo),
+                productId: book.id,
+                productTitle: book.volumeInfo.title,
+                productImage: book.volumeInfo.imageLinks.thumbnail,
+                price: getPrice(book.saleInfo),
                 quantity: 1,
             });
 
             //dispatch({ type: 'ADD_TO_CART', payload: item });
             setReload(true);
-            console.log('Thêm sản phẩm ' + item.id);
+            console.log('Thêm sản phẩm ' + book.id);
         } catch (error) {
             console.error('Error adding product to cart:', error);
             Alert.alert('Error adding product to cart. Please try again.');
         }
     };
 
+
     const getPrice = (saleInfo) => {
         if (saleInfo && saleInfo.listPrice && saleInfo.listPrice.amount) {
-            return saleInfo.listPrice.amount.toFixed(2);
+            return `${saleInfo.listPrice.amount.toFixed(2)}`;
         } else if (saleInfo && saleInfo.retailPrice && saleInfo.retailPrice.amount) {
-            return saleInfo.retailPrice.amount.toFixed(2);
+            return `${saleInfo.retailPrice.amount.toFixed(2)}`;
         } else {
-            return 100;
+            return '100';
         }
     };
+
+    const getAuthors = (authors) => {
+        // if authors array > 1, return the first author name and plus 'et al.'
+        if (authors && authors.length > 1) {
+            return `${authors[0]} ...`;
+        } else if (authors) {
+            return `${authors[0]}`;
+        } else {
+            return 'N/A';
+        }
+    }
 
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={handleProductDetail}>
                 <View style={styles.imageContainer}>
-                    <Image source={{ uri: item.volumeInfo.imageLinks && item.volumeInfo.imageLinks.thumbnail }} style={styles.image} />
-                    <Text style={styles.title}>{item.volumeInfo.title}</Text>
+                    <View style={styles.imageSizeContainer}>
+                        <Image source={{ uri: book.volumeInfo.imageLinks && book.volumeInfo.imageLinks.thumbnail }} style={styles.image} />
+                        <Text style={styles.title}>{book.volumeInfo.title}</Text>
+                    </View>
+                    <View style={styles.infoSizeContainer}>
+                        <Text style={styles.infoTitle}>Authors: {getAuthors(book.volumeInfo.authors)}</Text>
+                        <Text style={styles.infoTitle}>Categories: {book.volumeInfo.categories}</Text>
+                    </View>
                 </View>
             </TouchableOpacity>
             <View style={styles.noteContainer}>
                 <View style={styles.note}>
-                    <Text style={styles.price}>$ {getPrice(item.saleInfo).toString()}</Text>
+                    <Text style={styles.price}>$ {getPrice(book.saleInfo)}</Text>
                     <View style={styles.ratingContainer}>
-                        <Text style={styles.ratingText}>{item.volumeInfo.averageRating ? item.volumeInfo.averageRating.toFixed(1) : 'N/A'} </Text>
+                        <Text style={styles.ratingText}>{book.volumeInfo.averageRating ? book.volumeInfo.averageRating.toFixed(1) : 'N/A'} </Text>
                         <Ionicons name="star" size={16} color="yellow" />
-                        <Text style={styles.ratingText}>({item.volumeInfo.ratingsCount ? item.volumeInfo.ratingsCount : 'N/A'})</Text>
+                        <Text style={styles.ratingText}>({book.volumeInfo.ratingsCount ? book.volumeInfo.ratingsCount : 'N/A'})</Text>
                     </View>
                 </View>
                 <TouchableOpacity onPress={handleAddToCart}>
@@ -120,12 +139,29 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'left',
     },
+    infoTitle: {
+        fontSize: 12,
+        textAlign: 'left',
+    },
     imageContainer: {
         flex: 1,
         flexDirection: 'column',
         alignItems: 'left',
         justifyContent: 'center',
+    },
+    imageSizeContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
         height: 200,
+    },
+    infoSizeContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'left',
+        justifyContent: 'center',
+        height: 75,
     },
     noteContainer: {
         flexDirection: 'row',

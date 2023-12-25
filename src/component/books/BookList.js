@@ -10,7 +10,6 @@ export const BookList = ({ bookListType, navigation }) => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${bookListType}&maxResults=40&country=US`);
-                console.log(response.data.items);
                 const filteredBooks = response.data.items;
                 setBooks(filteredBooks || []);
             }
