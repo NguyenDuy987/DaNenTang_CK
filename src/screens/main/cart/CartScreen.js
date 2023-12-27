@@ -35,6 +35,10 @@ const CartScreen = () => {
 
 
     }, [state.cartItems, productDetails, token, reload]);
+    React.useLayoutEffect(() => {
+        navigation.setOptions({ title: 'Cart' });
+    }, [navigation]);
+
     if (state.cartItems.length === 0) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

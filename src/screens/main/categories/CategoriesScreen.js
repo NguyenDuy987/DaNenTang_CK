@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, BackgroundColor} from 'react-native';
 import { BookList } from '../../../component/books/BookList';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import * as SplashScreen from 'expo-splash-screen';
+import CustomLoading from '../../../component/Loading/CustomLoading';
 
 const categories = [
   { id: '1', name: 'Dog' },
@@ -14,6 +16,8 @@ const categories = [
 
 const CategoriesScreen = ({ navigation }) => {
   const [searchText, setSearchText] = useState('');
+  const [appIsReady, setAppIsReady] = useState(false);
+  const [books, setBooks] = useState([]);
   const renderItem = ({ item }) => {
     return (
       <View style={styles.categoryItemContainer}>
@@ -30,6 +34,36 @@ const CategoriesScreen = ({ navigation }) => {
   const handleCartButton = () => {
     navigation.navigate('Cart');
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+        const response = await axios.get('https://www.googleapis.com/books/v1/volumes?q=country=US&saleInfo.saleability=FOR_SALE');
+        setBooks(response.data.items);
+        await SplashScreen.hideAsync();
+        setAppIsReady(true);
+      }
+      catch (error) {
+        console.log(error);
+      }
+      finally {
+        setAppIsReady(true);
+      }
+    }
+    fetchData();
+  }
+    , []);
+  
+  const onLayoutRootView = async () => {
+      if (appIsReady) {
+        SplashScreen.hideAsync();
+      }
+  }
+
+  if (!appIsReady) {
+    return <CustomLoading />;
+  }
 
   return (
     <View style={styles.container}>
@@ -52,11 +86,16 @@ const CategoriesScreen = ({ navigation }) => {
           <Ionicons name="cart" size={24} color="white" />
         </TouchableOpacity>
       </View>
+      <View 
+        style={styles.categoryItemContainer}
+        onLayout={onLayoutRootView}
+      >
       <FlatList
         data={categories}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
       />
+      </View>
     </View>
   );
 }

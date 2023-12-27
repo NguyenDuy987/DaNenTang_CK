@@ -11,6 +11,8 @@ import { useCart } from '../../context/CartContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import * as SplashScreen from 'expo-splash-screen';
+import CustomLoading from '../Loading/CustomLoading';
 
 const BookDetailScreen = ({ route, navigation }) => {
     const { token } = useAuth();
@@ -29,7 +31,7 @@ const BookDetailScreen = ({ route, navigation }) => {
     const { state, dispatch } = useCart();
     const [book_id, setBook_id] = useState(route.params.Id);
     const [imageSource, setImageSource] = useState('');
-
+                
     useEffect(() => {
         if (reload) {
             fetchCartFromAPI();
@@ -169,7 +171,9 @@ const BookDetailScreen = ({ route, navigation }) => {
         navigation.setOptions({ title: title });
     }, [navigation, title]);
     return (
-        <View style={styles.productContainer}>
+        <View 
+            style={styles.productContainer}
+            >
             <FlatList
         data={[
             { key: 'productDetails' },

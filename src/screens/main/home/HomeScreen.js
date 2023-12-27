@@ -8,13 +8,15 @@ import Carousel from 'react-native-reanimated-carousel';
 import ad1 from '../../../../assets/ad_1.jpg';
 import ad2 from '../../../../assets/ad_2.jpg';
 import ad3 from '../../../../assets/ad_4.jpg';
+import * as SplashScreen from 'expo-splash-screen';
+import CustomLoading from '../../../component/Loading/CustomLoading';
 
 const hotDealsData = 'HotDeals';
 const newArrivalsData = 'NewArrivals';
 
 const HomeScreen = ({ navigation }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState([]);
+  const [appIsReady, setAppIsReady] = useState(false);
   const carouselData = [
     { id: 1, image: ad1 },
     { id: 2, image: ad2 },
@@ -34,8 +36,41 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+        const response = await axios.get('https://www.googleapis.com/books/v1/volumes?q=country=US&saleInfo.saleability=FOR_SALE');
+        setProducts(response.data.items);
+        await SplashScreen.hideAsync();
+        setAppIsReady(true);
+      }
+      catch (error) {
+        console.log(error);
+      }
+      finally {
+        setAppIsReady(true);
+      }
+    }
+    fetchData();
+  }
+    , []);
+
+  const onLayoutRootView = async () => {
+      if (appIsReady) {
+        await SplashScreen.hideAsync();
+      }
+  };
+
+  if (!appIsReady) {
+    return <CustomLoading />;
+  }
+
   return (
-    <View style={styles.container}>
+    <View 
+      style={styles.container}
+      onLayout={onLayoutRootView}
+      >
       <Text style={styles.slogan}>GreenInk Library</Text>
       <Carousel
         loop
