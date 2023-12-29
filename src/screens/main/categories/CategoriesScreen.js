@@ -7,10 +7,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import CustomLoading from '../../../component/Loading/CustomLoading';
 
 const categories = [
-  { id: '1', name: 'Dog' },
+  { id: '1', name: 'Science Fiction' },
   { id: '2', name: 'Fantasy' },
-  { id: '3', name: 'Flower' },
-  { id: '4', name: 'Science Fiction' },
+  { id: '3', name: 'Romance' },
+  { id: '4', name: 'Dog' },
   // Thêm các danh mục khác nếu cần
 ];
 

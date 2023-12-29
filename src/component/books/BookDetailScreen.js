@@ -31,6 +31,8 @@ const BookDetailScreen = ({ route, navigation }) => {
     const { state, dispatch } = useCart();
     const [book_id, setBook_id] = useState(route.params.Id);
     const [imageSource, setImageSource] = useState('');
+    const [calculateRating, setCalculateRating] = useState(0);
+    const [calculateCount, setCalculateCount] = useState(0);
                 
     useEffect(() => {
         if (reload) {
@@ -52,7 +54,7 @@ const BookDetailScreen = ({ route, navigation }) => {
 
             const response = await axios.get(`http://10.0.2.2:3000/comments/book/${title}`);
             
-            console.log('Comments fetched successfully:', response.data.comments);
+            console.log('Comments fetched successfully:', response.data);
         } catch (error) {
             console.error('Error fetching comments:', error);
         }
@@ -165,6 +167,23 @@ const BookDetailScreen = ({ route, navigation }) => {
                 return price;
             }
         };
+    const getRating = (rating) => {
+            console.log('rating: ' + rating);
+            if(rating === 'N/A'){
+                return `0`;
+            } else {
+                return rating;
+            }
+        };
+    const getCount = (count) => {
+            console.log('count: ' + count);
+            if(count === 'N/A'){
+                return `0`;
+            } else {
+                return count;
+            }
+        };
+
 
     //the header title is the product name
     React.useLayoutEffect(() => {
@@ -207,9 +226,9 @@ const BookDetailScreen = ({ route, navigation }) => {
 	                        <View style={styles.noteProduct}>
                                 <Text style={styles.productPrice}>${getPrice(price)}</Text>
 	                            <View style={styles.ratingContainer}>
-	                                <Text style={styles.ratingText}>{rate} </Text>
+	                                <Text style={styles.ratingText}>{getRating(rate)} </Text>
 	                                <Ionicons name="star" size={16} color="yellow"/>
-	                                <Text style={styles.ratingText}>({count})</Text>
+	                                <Text style={styles.ratingText}>({getCount(count)})</Text>
 	                            </View>
 	                        </View>
 	                        </View>

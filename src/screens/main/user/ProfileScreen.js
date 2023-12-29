@@ -81,8 +81,21 @@ export default function ProfileScreen({ navigation }) {
                     <Text style={styles.infoText}>Phone number: {phoneNumber}</Text>
                     <Text style={styles.infoText}>Address: {houseNumber} {street}, {city}</Text>
                 </View>
-                <Button title="View Orders" onPress={handleViewOrders} />
-                <Button title="Log out" onPress={handleLogout} />
+                <View style={styles.buttonContainer}>
+                <View style={styles.buttonStyle}>
+                    <Button 
+                        title="View Orders"
+                        color="green"
+                        onPress={handleViewOrders} />
+                </View>
+                <View style={styles.buttonStyle}>
+                    <Button 
+                        title="Log out"
+                        color="green" 
+                        onPress={handleLogout} 
+                    />
+                </View>
+                </View>
             </View>
         </View>
     );
@@ -130,4 +143,14 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 8,
     },
+    buttonStyle: {
+        width: '80%',
+        borderRadius: 10,
+        marginVertical: 10,
+    },
+    buttonContainer:{
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
 });

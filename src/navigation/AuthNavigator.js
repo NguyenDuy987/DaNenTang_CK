@@ -8,7 +8,7 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 const Stack = createStackNavigator();
 
 const navOptionHandler = () => ({
-  headerShown: true
+  headerShown: false
 })
 
 const AuthNavigator = () => {
