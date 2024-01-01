@@ -9,7 +9,7 @@ import ForgotPasswordScreen from "../screens/auth/ResetPass";
 const Stack = createStackNavigator();
 
 const navOptionHandler = () => ({
-  headerShown: true
+  headerShown: false
 })
 
 const AuthNavigator = () => {

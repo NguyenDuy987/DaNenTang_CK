@@ -45,14 +45,13 @@ const BookSearchList = ({ route, navigation }) => {
                         {books.length} results found
                     </Text>
                 </View>
-                <View>
                 <FlatList
                     data={books}
                     renderItem={({ item }) => <BookItem book={item} navigation={navigation} />}
                     keyExtractor={item => item.id}
-                    numCollumns={2}
+                    numColumns={2}
+                    horizontal={false}
                     />
-                </View>
             </View>
         </View>
     );
@@ -73,5 +72,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginVertical: 10,
+    },
+    searchContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });
