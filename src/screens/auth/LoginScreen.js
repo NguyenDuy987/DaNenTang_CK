@@ -1,7 +1,7 @@
 // LoginScreen.js
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../../assets/logoBookIcon.png';
 
@@ -42,20 +42,23 @@ const LoginScreen = ({ navigation }) => {
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <View style={styles.buttonContainer}>
-        <Button 
-          style={styles.inputButton} 
-          title="Login" 
+        <Button
+          style={styles.inputButton}
+          title="Login"
           color="green"
-          onPress={handleLogin} 
+          onPress={handleLogin}
         />
       </View>
       <View style={styles.buttonContainer}>
-        <Button 
-          style={styles.inputButton} 
+        <Button
+          style={styles.inputButton}
           title="Go to Register"
           color="green"
           onPress={() => navigation.navigate('Register')} />
       </View>
+      <TouchableOpacity onPress={() => navigation.navigate('Reset Password')}>
+        <Text style={{ color: 'blue', marginTop: 10 }}>Forgot password?</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -96,7 +99,7 @@ const styles = StyleSheet.create({
   inputButton: {
     borderRadius: 30,
   },
-  buttonContainer:{
+  buttonContainer: {
     width: '40%',
     borderRadius: 10,
     marginVertical: 10,

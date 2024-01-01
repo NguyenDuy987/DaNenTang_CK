@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken'); // Import thư viện jsonwebtoken
@@ -7,6 +8,7 @@ const User = require('./models/User');
 const Cart = require('./models/Cart');
 const Comment = require('./models/Comment');
 const Order = require('./models/Order');
+const ResetToken = require('./models/ResetToken');
 
 const app = express();
 const port = 3000;
@@ -16,6 +18,94 @@ app.use(cors());
 app.use(bodyParser.json());
 // API endpoint để lấy thông tin người dùng
 //app.get('/users/:userId', userController.getUserInfo);
+
+const transporter = nodemailer.createTransport({
+    host: "sandbox.smtp.mailtrap.io",
+    port: 2525,
+    auth: {
+        user: "ab7e72c2c776b2",
+        pass: "5accd0753c3d0f"
+    }
+});
+
+app.post('/api/forgot-password', async (req, res) => {
+    const { email } = req.body;
+
+    // Tạo mã đặt lại mật khẩu ngẫu nhiên
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Lưu mã đặt lại mật khẩu vào cơ sở dữ liệu
+    try {
+        const userResetToken = new ResetToken({
+            email,
+            token: resetToken,
+            expiresAt: new Date(Date.now() + 3600000), // Hết hạn sau 1 giờ
+        });
+
+        await userResetToken.save();
+
+        // Thiết lập nội dung email
+        const mailOptions = {
+            from: 'gasgu2k6@gmail.com', // Thay thế bằng địa chỉ email của bạn
+            to: email,
+            subject: 'Password Reset Request',
+            text: `Your password reset code is: ${resetToken}`,
+        };
+
+        // Gửi email
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ success: true, message: 'Password reset code sent successfully.' });
+    } catch (error) {
+        console.error('Error sending email or saving reset token:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
+
+// Endpoint để kiểm tra mã đặt lại mật khẩu
+app.post('/api/verify-reset-code', async (req, res) => {
+    const { email, resetCode } = req.body;
+
+    try {
+        // Tìm mã đặt lại mật khẩu trong cơ sở dữ liệu
+        const userResetToken = await ResetToken.findOne({
+            email,
+            token: resetCode,
+            expiresAt: { $gt: new Date() }, // Mã phải còn hiệu lực
+        });
+
+        if (userResetToken) {
+            res.status(200).json({ success: true, message: 'Reset code is valid.' });
+        } else {
+            res.status(400).json({ success: false, message: 'Invalid reset code.' });
+        }
+    } catch (error) {
+        console.error('Error verifying reset code:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
+
+app.post('/api/reset-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+    try {
+        // Kiểm tra xem email có tồn tại trong hệ thống hay không
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+        user.password = newPassword
+        await user.save();
+
+        res.status(200).json({ success: true, message: 'Password reset successfully.' });
+    }
+    catch (error) {
+        console.error('Error update failed:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+
+
+});
 
 
 app.get('/orders/user/:userId', async (req, res) => {
@@ -410,7 +500,7 @@ app.put('/comments/:id', async (req, res) => {
 
 app.delete('/comments/delete/:id', async (req, res) => {
     try {
-        const commentId= req.params.id;
+        const commentId = req.params.id;
         await Comment.deleteOne({ _id: commentId });
         res.json({ success: true, message: 'Comment deleted successfully' });
     } catch (error) {
