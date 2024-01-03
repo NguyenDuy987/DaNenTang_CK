@@ -3,20 +3,19 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, FlatList, ScrollView, Share } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import StarRating from 'react-native-star-rating';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from "../../../context/AuthContext";
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // import dung
-import { CommentsList } from '../comments/CommentsList'
-import { useCart } from '../../context/CartContext';
+import { CommentsList } from "../../../component/comments/CommentsList";
+import { useCart } from "../../../context/CartContext";
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
-import CustomLoading from '../Loading/CustomLoading';
 import * as Facebook from 'expo-facebook';
 import * as Sharing from 'expo-sharing';
 
-const BookDetailScreen = ({ route, navigation }) => {
+const FavDetailScreen = ({ route, navigation }) => {
     const { token } = useAuth();
     const [title, setTitle] = useState(route.params.title);
     const [image, setImage] = useState(route.params.image);
@@ -35,7 +34,6 @@ const BookDetailScreen = ({ route, navigation }) => {
     const [imageSource, setImageSource] = useState('');
     const [calculateRating, setCalculateRating] = useState(0);
     const [calculateCount, setCalculateCount] = useState(0);
-    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
         if (reload) {
@@ -49,7 +47,6 @@ const BookDetailScreen = ({ route, navigation }) => {
         useCallback(() => {
             // Fetch the comments or any other data you need when the screen gains focus
             fetchComments();
-            fetchFavorites();
         }, [reload]) // Include 'reload' in the dependencies to refetch comments when reload changes
     );
 
@@ -61,46 +58,6 @@ const BookDetailScreen = ({ route, navigation }) => {
             console.log('Comments fetched successfully:', response.data);
         } catch (error) {
             console.error('Error fetching comments:', error);
-        }
-    };
-
-    const fetchFavorites = async () => {
-        try {
-            const userId = jwtDecode(token).userId;
-            const response = await axios.get(`http://10.0.2.2:3000/favorites/${userId}`);
-            if (response.status === 404) {
-                return;
-            }
-            const favorites = response.data.products;
-            const isBookInFavorites = favorites.some((fav) => fav.productId === book_id);
-            setIsFavorite(isBookInFavorites);
-        } catch (error) {
-            //console.error('Error fetching favorites:', error);
-        }
-    };
-
-    const handleToggleFavorite = async () => {
-        try {
-            const userId = jwtDecode(token).userId;
-
-            if (isFavorite) {
-                // Remove the book from favorites
-                await axios.delete(`http://10.0.2.2:3000/favorites/${userId}/${book_id}`);
-            } else {
-                // Add the book to favorites
-                await axios.post(`http://10.0.2.2:3000/favorites/${userId}/add`, {
-                    productId: book_id,
-                    productTitle: title,
-                    productImage: image,
-                    price: getPrice(price),
-                    // Add other necessary fields
-                });
-            }
-
-            // Toggle the favorite state
-            setIsFavorite((prevIsFavorite) => !prevIsFavorite);
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
         }
     };
 
@@ -284,16 +241,8 @@ const BookDetailScreen = ({ route, navigation }) => {
                                                 <Text style={styles.ratingText}>{getRating(rate)} </Text>
                                                 <Ionicons name="star" size={16} color="yellow" />
                                                 <Text style={styles.ratingText}>({getCount(count)})</Text>
-
                                                 <TouchableOpacity onPress={handleShare}>
-                                                    <Ionicons name="share-social" size={24} color="green" />
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={handleToggleFavorite}>
-                                                    {isFavorite ? (
-                                                        <Ionicons name="heart" size={24} color="red" />
-                                                    ) : (
-                                                        <Ionicons name="heart-outline" size={24} color="red" />
-                                                    )}
+                                                    <Ionicons name="share-social" size={16} color="green" />
                                                 </TouchableOpacity>
                                             </View>
                                         </View>
@@ -374,7 +323,7 @@ const BookDetailScreen = ({ route, navigation }) => {
     );
 }
 
-export default BookDetailScreen;
+export default FavDetailScreen;
 
 const styles = StyleSheet.create({
     container: {

@@ -18,6 +18,7 @@ const CartScreen = () => {
     const [productDetails, setProductDetails] = useState({});
     const { token, user } = useAuth();
     const [reload, setReload] = useState(false);
+    const [clearCartModalVisible, setClearCartModalVisible] = useState(false);
 
     const user_id = token ? jwtDecode(token).userId : null;
 
@@ -152,10 +153,18 @@ const CartScreen = () => {
         }
     };
 
+    const handleClearCart = () => {
+        // Hiển thị modal xác nhận hoặc thực hiện logic xóa giỏ hàng trực tiếp ở đây
+        setClearCartModalVisible(true);
+    }
+
 
 
     return (
         <View style={styles.container}>
+            <TouchableOpacity style={styles.clearCartButton} onPress={handleClearCart}>
+                <Text style={styles.clearCartButtonText}>Clear Cart</Text>
+            </TouchableOpacity>
             <FlatList
                 data={state.cartItems.length > 0 ? state.cartItems[0].products : []}
                 keyExtractor={(item) => item.productId}
@@ -186,6 +195,19 @@ const CartScreen = () => {
                         <Text style={styles.modalButtonText}>Yes</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
+                        <Text style={styles.modalButtonText}>No</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
+            {/* Modal xác nhận xóa giỏ hàng */}
+            <Modal visible={clearCartModalVisible} animationType="slide">
+                <View style={styles.modalContainer}>
+                    <Text style={styles.modalText}>Are you sure you want to clear the cart?</Text>
+                    <TouchableOpacity style={styles.modalButton} onPress={handleDeleteCart}>
+                        <Text style={styles.modalButtonText}>Yes</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.modalButton} onPress={() => setClearCartModalVisible(false)}>
                         <Text style={styles.modalButtonText}>No</Text>
                     </TouchableOpacity>
                 </View>
@@ -254,6 +276,18 @@ const styles = StyleSheet.create({
         marginVertical: 8,
     },
     modalButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
+    clearCartButton: {
+        backgroundColor: 'red',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 16,
+        alignSelf: 'flex-end', // Đặt nút ở phía dưới bên phải
+    },
+    clearCartButtonText: {
+        fontSize: 16,
         color: 'white',
         fontWeight: 'bold',
     },

@@ -9,6 +9,7 @@ const Cart = require('./models/Cart');
 const Comment = require('./models/Comment');
 const Order = require('./models/Order');
 const ResetToken = require('./models/ResetToken');
+const Favorites = require('./models/Favorites');
 
 const app = express();
 const port = 3000;
@@ -18,6 +19,94 @@ app.use(cors());
 app.use(bodyParser.json());
 // API endpoint để lấy thông tin người dùng
 //app.get('/users/:userId', userController.getUserInfo);
+
+app.delete('/favorites/:userId/:productId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const productId = req.params.productId;
+
+        // Find the user's cart
+        const favorite = await Favorites.findOne({ userId });
+
+        if (!favorite) {
+            return res.status(404).json({ error: 'fav not found' });
+        }
+
+        // Remove the product from the cart
+        favorite.products = favorite.products.filter((product) => product.productId !== productId);
+
+        // Save the updated cart
+        await favorite.save();
+
+        res.json(favorite);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/favorites/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const favorite = await Favorites.findOne({ userId });
+
+        if (!favorite) {
+            return res.status(404).json({ error: 'Favorite not found' });
+        }
+
+        res.json(favorite);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.post('/favorites/:userId/add', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const { productId, productTitle, productImage, price, description, authors, categories, rate, count } = req.body;
+
+
+        // Find the user's cart or create a new one
+        let favorite = await Favorites.findOne({ userId });
+
+        if (!favorite) {
+            favorite = new Favorites({ userId, date: new Date(), products: [] });
+        }
+
+        // Check if the product is already in the cart
+        const existingProductIndex = favorite.products.findIndex((product) => product.productId === productId);
+
+        if (existingProductIndex !== -1) {
+            // If the product is already in the cart, update the quantity
+        } else {
+            // If the product is not in the cart, add it
+            // You need to fetch product details from your database based on the productId
+            //const productDetails = await fetchProductDetails(productId);
+
+            // Add the new product to the cart
+            favorite.products.push({
+                productId,
+                productTitle,
+                productImage,
+                price,
+                description,
+                authors,
+                categories,
+                rate,
+                count,
+            });
+        }
+
+        // Save the updated cart
+        await favorite.save();
+
+        res.json(favorite);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 const transporter = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",

@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export default function ProfileScreen({ navigation }) {
-    const { signOut, token } = useAuth();
+    const { signOut, token, isUpdated, handleIsUpdated } = useAuth();
     const [user, setUser] = useState(null);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -41,6 +41,7 @@ export default function ProfileScreen({ navigation }) {
         // Mã lệnh sẽ chạy khi giá trị user thay đổi
 
         if (user) {
+
             console.log(user);
             setFirstName(user.user.firstname);
             setLastName(user.user.lastname);
@@ -82,19 +83,19 @@ export default function ProfileScreen({ navigation }) {
                     <Text style={styles.infoText}>Address: {houseNumber} {street}, {city}</Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                <View style={styles.buttonStyle}>
-                    <Button 
-                        title="View Orders"
-                        color="green"
-                        onPress={handleViewOrders} />
-                </View>
-                <View style={styles.buttonStyle}>
-                    <Button 
-                        title="Log out"
-                        color="green" 
-                        onPress={handleLogout} 
-                    />
-                </View>
+                    <View style={styles.buttonStyle}>
+                        <Button
+                            title="View Orders"
+                            color="green"
+                            onPress={handleViewOrders} />
+                    </View>
+                    <View style={styles.buttonStyle}>
+                        <Button
+                            title="Log out"
+                            color="green"
+                            onPress={handleLogout}
+                        />
+                    </View>
                 </View>
             </View>
         </View>
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginVertical: 10,
     },
-    buttonContainer:{
+    buttonContainer: {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',

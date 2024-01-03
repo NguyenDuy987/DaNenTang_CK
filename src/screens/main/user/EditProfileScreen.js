@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 export default function EditProfileScreen({ navigation }) {
-    const { signOut, token } = useAuth();
+    const { signOut, token, handleIsUpdated } = useAuth();
     const [user, setUser] = useState(null);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -73,8 +73,13 @@ export default function EditProfileScreen({ navigation }) {
             return;
         };
         updateUserInfo();
+        handleIsUpdated();
         Alert.alert('Thông báo', 'Hồ sơ người dùng đã được thay đổi.');
-        navigation.navigate('ProfileScreen');
+
+
+        setTimeout(() => {
+            navigation.navigate('ProfileScreen');
+        }, 1050);
     }
 
     return (

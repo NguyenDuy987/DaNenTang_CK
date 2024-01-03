@@ -76,7 +76,7 @@ const OrderScreen = () => {
             setReload(true);
             //fetchCartFromAPI();
             // Xử lý kết quả nếu cần thiết
-            Alert.alert('Your order is underway');
+            //Alert.alert('Your order is underway');
         } catch (error) {
             console.error('Error deleting cart:', error);
             Alert.alert('Error deleting cart. Please try again.');

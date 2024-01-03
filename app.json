@@ -1,5 +1,7 @@
 {
   "expo": {
+    "facebookAppId": "744871017492059",
+    "facebookDisplayName": "GreenInk",
     "name": "ReactNavigation",
     "slug": "ReactNavigation",
     "version": "1.0.0",

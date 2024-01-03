@@ -13,24 +13,26 @@ const ProductsDetailScreen = ({ route, navigation }) => {
     React.useLayoutEffect(() => {
         navigation.setOptions({ title: title });
     }, [navigation, title]);
+
+
     return (
         <View style={styles.productContainer}>
-        <View style={styles.productImageContainer}>
-            <Image source={{ uri: image }} style={styles.productImage} />
-        </View>
-        <View style={styles.productDetails}>
-            <Text style={styles.productDescription} >{description}</Text>
-            <View style={styles.noteProductContainer}>
-                <View style={styles.noteProduct}>
-                    <Text style={styles.productPrice}>${price}</Text>
-                    <View style={styles.ratingContainer}>
-                        <Text style={styles.ratingText}>{rate} </Text>
-                        <Ionicons name="star" size={16} color="yellow"/>
-                        <Text style={styles.ratingText}>({count})</Text>
+            <View style={styles.productImageContainer}>
+                <Image source={{ uri: image }} style={styles.productImage} />
+            </View>
+            <View style={styles.productDetails}>
+                <Text style={styles.productDescription} >{description}</Text>
+                <View style={styles.noteProductContainer}>
+                    <View style={styles.noteProduct}>
+                        <Text style={styles.productPrice}>${price}</Text>
+                        <View style={styles.ratingContainer}>
+                            <Text style={styles.ratingText}>{rate} </Text>
+                            <Ionicons name="star" size={16} color="yellow" />
+                            <Text style={styles.ratingText}>({count})</Text>
+                        </View>
                     </View>
                 </View>
             </View>
-        </View>
         </View>
     );
 }

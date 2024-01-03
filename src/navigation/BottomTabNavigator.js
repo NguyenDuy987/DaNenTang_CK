@@ -9,6 +9,7 @@ import ProfileStackNavigator from './ProfileStackNavigator';
 import CartScreen from '../screens/main/cart/CartScreen';
 import CategoriesNavigator from './CategoriesNavigator';
 import CartToOrderStackNavigator from './cartToOrderNav';
+//import DrawerNavigator from './DrawerNavigation';
 
 //Screen names
 const homeTab = "Home Tab";

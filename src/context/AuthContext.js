@@ -10,6 +10,7 @@ const userToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInVzZXIiOiJt
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
+    const [isUpdate, setIsUpdated] = useState(false);
 
     const authService = {
         login: async (username, password) => {
@@ -59,11 +60,16 @@ export const AuthProvider = ({ children }) => {
             throw new Error('Authentication failed');
         }
     };
+    const handleIsUpdated = () => {
+        setIsUpdated(true);
+    }
 
     const signOut = async () => {
         await authService.logout();
+        setIsUpdated(false);
         setToken(null);
         setUser(null);
+
     };
 
     const registerUser = async (userData) => {
@@ -78,6 +84,8 @@ export const AuthProvider = ({ children }) => {
     const profileUser = {
         user,
         token,
+        isUpdate,
+        handleIsUpdated,
         signIn,
         signOut,
         registerUser
